@@ -32,6 +32,7 @@ EXERCISES = {
     "03": "exercises/03-resources/solution.py",
     "04": "exercises/04-prompts/solution.py",
     "05": "exercises/05-complete-server/solution.py",
+    "06": "exercises/06-filesystem-server/solution.py",
 }
 
 

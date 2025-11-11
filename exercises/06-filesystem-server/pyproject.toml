@@ -1,0 +1,17 @@
+[project]
+name = "filesystem-server"
+version = "0.1.0"
+description = "MCP server for browsing and reading files"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp>=1.0.0",
+    "fastmcp>=0.1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = []
