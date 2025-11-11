@@ -2,6 +2,9 @@ from typing import Any
 import httpx
 from mcp.server.fastmcp import FastMCP
 import logging
+import os
+import json
+from pathlib import Path
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -10,10 +13,32 @@ mcp = FastMCP("weather")
 
 NWS_API_BASE = "https://api.weather.gov"
 USER_AGENT = "weather-app/1.0"
+OFFLINE_MODE = os.getenv("MCP_OFFLINE") == "1"
+
+
+async def load_offline_data(filename: str) -> dict[str, Any] | None:
+    """Load data from offline JSON fixtures."""
+    data_dir = Path(__file__).parent / "data" / "weather"
+    filepath = data_dir / filename
+    
+    try:
+        with open(filepath, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logger.error(f"Offline fixture not found: {filepath}")
+        logger.error(f"Please ensure {filename} exists in {data_dir}")
+        return None
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in {filepath}: {e}")
+        return None
 
 
 async def make_nws_request(url: str) -> dict[str, Any] | None:
     """Make a request to the NWS API with proper error handling."""
+    if OFFLINE_MODE:
+        logger.info(f"OFFLINE MODE: Skipping network request to {url}")
+        return None
+    
     headers = {
         "User-Agent": USER_AGENT,
         "Accept": "application/geo+json"
@@ -47,8 +72,14 @@ async def get_alerts(state: str) -> str:
     Args:
         state: Two-letter US state code (e.g. CA, NY)
     """
-    url = f"{NWS_API_BASE}/alerts/active/area/{state}"
-    data = await make_nws_request(url)
+    if OFFLINE_MODE:
+        logger.info(f"OFFLINE MODE: Loading alerts from local fixture for state {state}")
+        data = await load_offline_data(f"alerts_{state}.json")
+        if not data:
+            return f"Offline mode: No fixture file found for state {state}. Please add data/weather/alerts_{state}.json"
+    else:
+        url = f"{NWS_API_BASE}/alerts/active/area/{state}"
+        data = await make_nws_request(url)
     
     if not data or "features" not in data:
         return "Unable to fetch alerts or no alerts found."
@@ -68,14 +99,20 @@ async def get_forecast(latitude: float, longitude: float) -> str:
         latitude: Latitude of the location
         longitude: Longitude of the location
     """
-    points_url = f"{NWS_API_BASE}/points/{latitude},{longitude}"
-    points_data = await make_nws_request(points_url)
-    
-    if not points_data:
-        return "Unable to fetch forecast data for this location."
-    
-    forecast_url = points_data["properties"]["forecast"]
-    forecast_data = await make_nws_request(forecast_url)
+    if OFFLINE_MODE:
+        logger.info(f"OFFLINE MODE: Loading forecast from local fixture for {latitude},{longitude}")
+        forecast_data = await load_offline_data(f"forecast_{latitude}_{longitude}.json")
+        if not forecast_data:
+            return f"Offline mode: No fixture file found for coordinates {latitude},{longitude}. Please add data/weather/forecast_{latitude}_{longitude}.json"
+    else:
+        points_url = f"{NWS_API_BASE}/points/{latitude},{longitude}"
+        points_data = await make_nws_request(points_url)
+        
+        if not points_data:
+            return "Unable to fetch forecast data for this location."
+        
+        forecast_url = points_data["properties"]["forecast"]
+        forecast_data = await make_nws_request(forecast_url)
     
     if not forecast_data:
         return "Unable to fetch detailed forecast."

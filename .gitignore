@@ -51,3 +51,7 @@ htmlcov/
 # Environment variables
 .env
 .env.local
+
+# uv
+.python-version
+uv.lock

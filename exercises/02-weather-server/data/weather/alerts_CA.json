@@ -1,0 +1,58 @@
+{
+  "@context": [
+    "https://geojson.org/geojson-ld/geojson-context.jsonld",
+    {
+      "@version": "1.1"
+    }
+  ],
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.sample1",
+      "type": "Feature",
+      "geometry": null,
+      "properties": {
+        "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.sample1",
+        "@type": "wx:Alert",
+        "id": "urn:oid:2.49.0.1.840.0.sample1",
+        "areaDesc": "San Francisco Bay Area",
+        "geocode": {
+          "SAME": ["006075"],
+          "UGC": ["CAZ006"]
+        },
+        "affectedZones": [
+          "https://api.weather.gov/zones/forecast/CAZ006"
+        ],
+        "references": [],
+        "sent": "2024-01-15T10:00:00-08:00",
+        "effective": "2024-01-15T10:00:00-08:00",
+        "onset": "2024-01-15T18:00:00-08:00",
+        "expires": "2024-01-16T10:00:00-08:00",
+        "ends": "2024-01-16T06:00:00-08:00",
+        "status": "Actual",
+        "messageType": "Alert",
+        "category": "Met",
+        "severity": "Moderate",
+        "certainty": "Likely",
+        "urgency": "Expected",
+        "event": "Wind Advisory",
+        "sender": "w-nws.webmaster@noaa.gov",
+        "senderName": "NWS San Francisco CA",
+        "headline": "Wind Advisory issued January 15 at 10:00AM PST until January 16 at 6:00AM PST by NWS San Francisco CA",
+        "description": "Strong winds expected this evening through early Tuesday morning. Southwest winds 20 to 30 mph with gusts up to 50 mph expected.",
+        "instruction": "Use extra caution when driving, especially if operating a high profile vehicle. Secure outdoor objects.",
+        "response": "Execute",
+        "parameters": {
+          "AWIPSidentifier": ["NPWMTR"],
+          "WMOidentifier": ["WWUS46 KMTR 151800"],
+          "NWSheadline": ["WIND ADVISORY IN EFFECT FROM 6 PM THIS EVENING TO 6 AM PST TUESDAY"],
+          "BLOCKCHANNEL": ["EAS", "NWEM", "CMAS"],
+          "VTEC": ["/O.NEW.KMTR.WI.Y.0001.240115T1800Z-240116T1400Z/"],
+          "eventEndingTime": ["2024-01-16T06:00:00-08:00"]
+        }
+      }
+    }
+  ],
+  "title": "Current watches, warnings, and advisories for California",
+  "updated": "2024-01-15T10:00:00-08:00"
+}
