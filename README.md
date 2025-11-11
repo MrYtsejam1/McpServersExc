@@ -2,6 +2,10 @@
 
 A comprehensive exercise for learning to build Model Context Protocol (MCP) servers following Anthropic best practices.
 
+## 🚀 Works Without Claude for Desktop!
+
+**All exercises work completely offline using the included Python MCP client and LangChain integration.** Claude for Desktop is optional - you can test and use all MCP servers in airgapped environments without any external services.
+
 ## Overview
 
 This repository contains a progressive series of exercises to help you master MCP server development. Each exercise builds on the previous one, introducing new concepts and best practices.
@@ -15,11 +19,39 @@ Model Context Protocol (MCP) is an open-source standard for connecting AI applic
 - Python 3.10 or higher
 - Basic understanding of Python and async programming
 - Familiarity with AI/LLM concepts
-- Claude for Desktop (optional, for testing)
+- **Claude for Desktop is OPTIONAL** - use the included Python client instead
+
+## Quick Start (No Claude Required)
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/MrYtsejam1/McpServersExc.git
+cd McpServersExc
+
+# 2. Install dependencies
+pip install -r requirements-offline.txt
+
+# 3. Test the calculator server
+python3 clients/mcp_client_cli.py --exercise 01 --action list-tools
+python3 clients/mcp_client_cli.py --exercise 01 --action call-tool --name add --args '{"a": 15, "b": 27}'
+```
+
+**For airgapped environments:** See [docs/airgapped.md](docs/airgapped.md) for complete offline installation and usage instructions.
 
 ## Setup
 
-### Install uv (Python package manager)
+### Standard Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/MrYtsejam1/McpServersExc.git
+cd McpServersExc
+
+# Install dependencies
+pip install -r requirements-offline.txt
+```
+
+### Optional: Install uv (Python package manager)
 
 **macOS/Linux:**
 ```bash
@@ -29,15 +61,6 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 **Windows:**
 ```powershell
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-```
-
-Restart your terminal after installation.
-
-### Clone and Setup
-
-```bash
-git clone https://github.com/MrYtsejam1/McpServersExc.git
-cd McpServersExc
 ```
 
 ## Exercise Structure
@@ -98,14 +121,53 @@ Build a comprehensive server combining all concepts.
 
 ## Testing Your Servers
 
-### Using MCP Inspector
-The MCP Inspector is a developer tool for testing servers:
+### Using the Python MCP Client (Recommended for Airgapped Environments)
+
+The included Python client works completely offline without any external dependencies:
+
+```bash
+# List available tools
+python3 clients/mcp_client_cli.py --exercise 01 --action list-tools
+
+# Call a tool
+python3 clients/mcp_client_cli.py --exercise 01 --action call-tool --name add --args '{"a": 5, "b": 3}'
+
+# List resources
+python3 clients/mcp_client_cli.py --exercise 03 --action list-resources
+
+# Read a resource
+python3 clients/mcp_client_cli.py --exercise 03 --action read-resource --uri "docs://getting-started"
+
+# Test offline mode (for weather server)
+python3 clients/mcp_client_cli.py --exercise 02 --action call-tool --name get_alerts --args '{"state": "CA"}' --offline
+```
+
+### Using LangChain Integration
+
+Integrate MCP servers with your local LLM (e.g., qwen3-coder-480b):
+
+```bash
+# Manual tool invocation (no LLM required)
+python3 clients/langchain/examples/agent_no_llm.py
+
+# With local LLM
+python3 clients/langchain/examples/agent_local_llm.py \
+  --model custom \
+  --api-url http://your-inference-server:8000/v1 \
+  --model-name qwen3-coder-480b
+```
+
+See [clients/langchain/examples/README.md](clients/langchain/examples/README.md) for more details.
+
+### Alternative: Using MCP Inspector (Requires npm)
+
+The MCP Inspector is a browser-based developer tool:
 
 ```bash
 npx @modelcontextprotocol/inspector uv --directory /path/to/exercise run server.py
 ```
 
-### Using Claude for Desktop
+### Alternative: Using Claude for Desktop (Optional)
 
 1. Install Claude for Desktop from https://claude.ai/download
 2. Configure your server in `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows)

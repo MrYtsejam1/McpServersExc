@@ -10,12 +10,15 @@ Usage:
     python3 mcp_client_cli.py --exercise 01 --action call-tool --name add --args '{"a": 5, "b": 3}'
     python3 mcp_client_cli.py --exercise 03 --action list-resources
     python3 mcp_client_cli.py --exercise 03 --action read-resource --uri "docs://getting-started"
+    
+    python3 mcp_client_cli.py --exercise 02 --action call-tool --name get_alerts --args '{"state": "CA"}' --offline
 """
 
 import asyncio
 import argparse
 import json
 import sys
+import os
 from pathlib import Path
 from typing import Any
 
@@ -178,7 +181,7 @@ async def get_prompt(session: ClientSession, name: str, args: dict[str, Any]) ->
         sys.exit(1)
 
 
-async def run_client(exercise: str, action: str, **kwargs) -> None:
+async def run_client(exercise: str, action: str, offline: bool = False, **kwargs) -> None:
     """Run the MCP client with the specified exercise and action."""
     if exercise not in EXERCISES:
         print(f"Error: Unknown exercise '{exercise}'", file=sys.stderr)
@@ -192,10 +195,15 @@ async def run_client(exercise: str, action: str, **kwargs) -> None:
         print(f"Error: Server file not found: {server_path}", file=sys.stderr)
         sys.exit(1)
     
+    server_env = dict(os.environ)
+    if offline:
+        server_env["MCP_OFFLINE"] = "1"
+        print(f"Running in OFFLINE mode (MCP_OFFLINE=1)", file=sys.stderr)
+    
     server_params = StdioServerParameters(
         command="python3",
         args=[str(server_path)],
-        env=None,
+        env=server_env,
     )
     
     try:
@@ -251,6 +259,8 @@ Examples:
   %(prog)s --exercise 04 --action list-prompts
   
   %(prog)s --exercise 04 --action get-prompt --name review_pull_request --args '{"language": "Python"}'
+  
+  %(prog)s --exercise 02 --action call-tool --name get_alerts --args '{"state": "CA"}' --offline
         """
     )
     
@@ -283,6 +293,12 @@ Examples:
         help="Resource URI (for read-resource action)"
     )
     
+    parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="Run in offline mode (sets MCP_OFFLINE=1 for the server)"
+    )
+    
     args = parser.parse_args()
     
     kwargs = {}
@@ -297,7 +313,7 @@ Examples:
             print(f"Error: Invalid JSON in --args: {e}", file=sys.stderr)
             sys.exit(1)
     
-    asyncio.run(run_client(args.exercise, args.action, **kwargs))
+    asyncio.run(run_client(args.exercise, args.action, offline=args.offline, **kwargs))
 
 
 if __name__ == "__main__":
